@@ -1,0 +1,134 @@
+CREATE DATABASE doctor_appointments;
+
+USE doctor_appointments;
+
+CREATE TABLE appointments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  doctor_name VARCHAR(100) NOT NULL,
+  patient_name VARCHAR(100) NOT NULL,
+  appointment_time TIME NOT NULL,
+  appointment_date DATE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+2. Set Up the Backend (Node.js with Express.js)
+Install Node.js Modules
+Create a project folder, and install required modules using npm:
+
+bash
+Copy code
+mkdir doctor-appointments
+cd doctor-appointments
+npm init -y
+npm install express mysql body-parser cors
+
+Create the Backend Code
+Create a file server.js:
+
+javascript
+Copy code
+
+
+const express = require("express");
+const mysql = require("mysql");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+
+const app = express();
+const port = 3000;
+
+// Middleware
+app.use(bodyParser.json());
+app.use(cors());
+
+// MySQL Connection Setup
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",      // Replace with your MySQL username
+  password: "",      // Replace with your MySQL password
+  database: "doctor_appointments",
+});
+
+// Connect to MySQL
+db.connect((err) => {
+  if (err) throw err;
+  console.log("Connected to MySQL database!");
+});
+
+// Route to handle appointment submission
+app.post("/api/book-appointment", (req, res) => {
+  const { doctor_name, patient_name, appointment_time, appointment_date } = req.body;
+
+  if (!doctor_name || !patient_name || !appointment_time || !appointment_date) {
+    return res.status(400).send("All fields are required!");
+  }
+
+  const sql = `INSERT INTO appointments (doctor_name, patient_name, appointment_time, appointment_date) 
+               VALUES (?, ?, ?, ?)`;
+
+  db.query(sql, [doctor_name, patient_name, appointment_time, appointment_date], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error booking the appointment.");
+    }
+    res.status(200).send("Appointment successfully booked!");
+  });
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
+
+
+Connect Frontend to Backend
+Frontend JavaScript Update
+Update your script.js to send a POST request to the backend using the Fetch API:
+
+
+document.getElementById("form").addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  // Fetch input values
+  const patientName = document.getElementById("name").value;
+  const appointmentTime = document.getElementById("time").value;
+  const doctorName = sessionStorage.getItem("selectedDoctor");
+
+  // Get the current date (as MySQL requires date format)
+  const appointmentDate = new Date().toISOString().split('T')[0];
+
+  // Send data to the backend
+  fetch("http://localhost:3000/api/book-appointment", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      doctor_name: doctorName,
+      patient_name: patientName,
+      appointment_time: appointmentTime,
+      appointment_date: appointmentDate,
+    }),
+  })
+    .then((response) => response.text())
+    .then((data) => {
+      alert(data); // Show success message
+      document.getElementById("confirmation").innerText = "Appointment successfully booked!";
+      document.getElementById("confirmation").style.display = "block";
+
+      // Clear form
+      document.getElementById("name").value = "";
+      document.getElementById("time").value = "";
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("An error occurred while booking the appointment.");
+    });
+});
+
+
+ Test the Application
+Start MySQL Server and ensure the doctor_appointments database exists.
+
+node server.js

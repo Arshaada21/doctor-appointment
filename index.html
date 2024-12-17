@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect to Doctor</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Connect to a Doctor</h1>
+  </header>
+
+  <!-- Doctor List Section -->
+  <section id="doctor-list">
+    <h2>Select a Doctor</h2>
+    <div id="doctor-container" class="doctor-container"></div> <!-- Doctor Cards Go Here -->
+  </section>
+
+  <!-- Appointment Form -->
+  <section id="appointment-form" style="display:none;">
+    <h2>Book Appointment</h2>
+    <form id="form">
+      <label for="name">Your Name:</label>
+      <input type="text" id="name" placeholder="Enter your name" required>
+      <label for="time">Preferred Time:</label>
+      <input type="time" id="time" required>
+      <button type="submit">Submit</button>
+    </form>
+    <p id="confirmation" style="color: green; display:none;"></p>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
